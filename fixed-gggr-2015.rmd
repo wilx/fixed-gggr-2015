@@ -1,5 +1,5 @@
 ---
-title: "Fixed GGGR 2015"
+title: "Fixed Global Gender Gap Report 2015"
 author: "Václav Haisman"
 date: "March 1, 2016"
 output: 
@@ -16,13 +16,25 @@ mainfont: TeX Gyre Schola
 library(knitr)
 ```
 
-# Fixed GGGR 2015
+# Fixed Global Gender Gap Report 2015
 
 Why am I doing this?
 
 :   Because the Global Gender Gap Report and its indexes does not punish countries where the gender gap
     is in favour of females. Ranks and indexes of some of the countries will be significantly different
     if the gap is punished both when it favours males and when it favours females.
+    
+How does this differ from the original report?
+
+:   Whenever there is inequality (gap) affecting males favouring females, the original report
+    truncates any ratio at value 1. In this report, table colum cRatio (corrected ratio) is 
+    calculated as inverse value ($\frac{1}{ratio}$) of the original ratio. There is also new column
+    cRank (corrected rank) which shows ranking of the countries using the cRatio column.
+    
+How was this PDF produced?
+
+:   This PDF was produced by use of several tools: `pdftohtml`, Perl, R, RStudio and RMarkdown.
+    See [Appendix 1](#appendix-1) for details.
 
 ## Economic participation and opportunity
 
@@ -201,7 +213,7 @@ kable(womenMinisters, digits = 2)
 kable(femaleHeadOfState, digits = 2)
 ````
 
-# Apendix 1
+# Appendix 1 {#appendix-1}
 
 The following Perl script was used to scrape Global Gender Gap Report PDF file and produce separate CSV for each table:
 
@@ -319,3 +331,5 @@ The script uses `gggr.xml` file as its input. This file was produced by the foll
 ```bash
 pdftohtml -f $((52+8)) -l $((65+8)) -c -s -noframes -xml -enc UTF-8  gggr2015.pdf gggr
 ```
+
+The `gggr2015.pdf` file can be [downloaded](http://reports.weforum.org/global-gender-gap-report-2015/) from World Economic Forum web site.
