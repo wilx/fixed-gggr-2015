@@ -20,9 +20,10 @@ library(knitr)
 
 Why am I doing this?
 
-:   Because the Global Gender Gap Report and its indexes does not punish countries where the gender gap
-    is in favour of females. Ranks and indexes of some of the countries will be significantly different
-    if the gap is punished both when it favours males and when it favours females.
+:   Because the [Global Gender Gap Report](http://reports.weforum.org/global-gender-gap-report-2015/)
+    and its indexes does not accurately reflect gender
+    gaps that favour females. Ranks and indexes of some of the countries will be significantly different
+    if the gap is penalized both when it favours males and when it favours females.
     
 How does this differ from the original report?
 
@@ -34,7 +35,10 @@ How does this differ from the original report?
 How was this PDF produced?
 
 :   This PDF was produced by use of several tools: `pdftohtml`, Perl, R, RStudio and RMarkdown.
-    See [Appendix 1](#appendix-1) for details.
+    See [Appendix 1](#appendix-1) for details. There is GitHub repository
+    [`wilx/fixed-gggr-2015`](https://github.com/wilx/fixed-gggr-2015) that contains all the necessary
+    sources and generated files to build this PDF file, except for the original 
+    Global Gender Gap Report 2015 PDF file.
 
 ## Economic participation and opportunity
 
