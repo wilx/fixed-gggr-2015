@@ -2,9 +2,11 @@
 title: "Corrected Global Gender Gap Report 2015"
 author: "Václav Haisman"
 date: "March 1, 2016"
+toc: true
 output: 
   pdf_document: 
     latex_engine: xelatex
+    number_sections: true
 language: english
 geometry:
     - a4paper
@@ -14,6 +16,32 @@ mainfont: TeX Gyre Schola
 
 ```{r, echo=FALSE}
 library(knitr)
+
+linechart <- function(origData, correctedData, chartLabel) {
+  frame()
+  stripchart(origData, method = "stack",# jitter = 0.1, offset = 1/3,
+             vertical = FALSE, add = FALSE,
+             at = NULL, xlim = c(0,1), ylim = NULL,
+             main = chartLabel, family = "serif", ylab = "", xlab = "ratio",
+             log = "", cex.main = 0.8, col="blue", pch=1)
+  stripchart(correctedData, method = "stack",# jitter = 0.1, offset = 1/3,
+             vertical = FALSE, add = TRUE,
+             at = NULL, xlim = c(0,1), ylim = NULL,
+             ylab = "", xlab = "",
+             log = "", cex.main = 0.8,  col="green", pch=2)
+  legend("topleft", legend = c("original", "corrected"), col=c("blue", "green"), pch=c(1,2))
+}
+
+addMoreInfoColumns <- function(dataFrame) {
+  dataFrame$cRank <- rank(-dataFrame$cRatio, na.last = TRUE, ties.method = "min")
+  dataFrame$change <- ifelse(dataFrame$cRank <= dataFrame$rank,
+                             ifelse(dataFrame$cRank < dataFrame$rank,
+                                    sprintf("↑%d", dataFrame$rank - dataFrame$cRank),
+                                    "="),
+                             sprintf("↓%d", dataFrame$cRank - dataFrame$rank))
+  return(dataFrame)
+}
+
 ```
 
 # Corrected Global Gender Gap Report 2015
@@ -46,11 +74,12 @@ How was this PDF produced?
 labForcePart <- read.csv2(file = "Labour-force-participation.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-labForcePart$cRank <- rank(-labForcePart$cRatio, na.last = TRUE, ties.method = "min")
+labForcePart <- addMoreInfoColumns(labForcePart)
 
 wageEq <- read.csv2(file = "Wage-equality-survey.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "survey data", "FM", "FMT", "rank", "cRatio"))
+wageEq <- addMoreInfoColumns(wageEq)
 
 estEarnedIncome <- read.csv2(file = "Estimated-earned-income.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
@@ -59,17 +88,13 @@ estEarnedIncome <- read.csv2(file = "Estimated-earned-income.csv",
 legSenMan <- read.csv2(file = "Legislators,-senior-officials-and-managers.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-legSenMan$cRank <- rank(-legSenMan$cRatio, na.last = TRUE, ties.method = "min")
-
-legSenMan <- read.csv2(file = "Legislators,-senior-officials-and-managers.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-legSenMan$cRank <- rank(-legSenMan$cRatio, na.last = TRUE, ties.method = "min")
+legSenMan <- addMoreInfoColumns(legSenMan)
 
 techWorkers <- read.csv2(file = "Professional-and-technical-workers.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-techWorkers$cRank <- rank(-techWorkers$cRatio, na.last = TRUE, ties.method = "min")
+techWorkers <- addMoreInfoColumns(techWorkers)
+
 ```
 
 ### Labour force participation
@@ -78,11 +103,20 @@ techWorkers$cRank <- rank(-techWorkers$cRatio, na.last = TRUE, ties.method = "mi
 kable(labForcePart, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(labForcePart$FMT, labForcePart$cRatio, "Labour force participation")
+````
+
 ### Wage equality
 
 ````{r, echo=FALSE}
 kable(wageEq, digits = 2)
 ````
+
+````{r, echo=FALSE, fig.align='center'}
+linechart(wageEq$FMT, wageEq$cRatio, "Wage equality")
+````
+
 
 ### Estimated earned income
 
@@ -96,10 +130,19 @@ kable(estEarnedIncome, digits = 2)
 kable(legSenMan, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(legSenMan$FMT, legSenMan$cRatio, "Legislators, senior officials and managers")
+````
+
+
 ### Professional and technical workers
 
 ````{r, echo=FALSE}
 kable(techWorkers, digits = 2)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+linechart(techWorkers$FMT, techWorkers$cRatio, "Professional and technical workers")
 ````
 
 
@@ -109,22 +152,22 @@ kable(techWorkers, digits = 2)
 primEd <- read.csv2(file = "Enrolment-in-primary-education.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-primEd$cRank <- rank(-primEd$cRatio, na.last = TRUE, ties.method = "min")
+primEd <- addMoreInfoColumns(primEd)
 
 secEd <- read.csv2(file = "Enrolment-in-secondary-education.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-secEd$cRank <- rank(-secEd$cRatio, na.last = TRUE, ties.method = "min")
+secEd <- addMoreInfoColumns(secEd)
 
 terEd <- read.csv2(file = "Enrolment-in-tertiary-education.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-terEd$cRank <- rank(-terEd$cRatio, na.last = TRUE, ties.method = "min")
+terEd <- addMoreInfoColumns(terEd)
 
 literacy <- read.csv2(file = "Literacy-rate.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-literacy$cRank <- rank(-literacy$cRatio, na.last = TRUE, ties.method = "min")
+literacy <- addMoreInfoColumns(literacy)
 
 ```
 
@@ -134,16 +177,30 @@ literacy$cRank <- rank(-literacy$cRatio, na.last = TRUE, ties.method = "min")
 kable(literacy, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(literacy$FMT, literacy$cRatio, "Literacy")
+````
+
+
 ### Primary education enrollment
 
 ````{r, echo=FALSE}
 kable(primEd, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(primEd$FMT, primEd$cRatio, "Primary education enrollment")
+````
+
+
 ### Secondary education enrollment
 
 ````{r, echo=FALSE}
 kable(secEd, digits = 2)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+linechart(secEd$FMT, secEd$cRatio, "Secondary education enrollment")
 ````
 
 ### Tertiary education enrollment
@@ -152,6 +209,9 @@ kable(secEd, digits = 2)
 kable(terEd, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(terEd$FMT, terEd$cRatio, "Tertiary education enrollment")
+````
 
 ## Health and survival
 
@@ -163,7 +223,7 @@ birthRatio <- read.csv2(file = "Sex-ratio-at-birth.csv",
 healthyLife <- read.csv2(file = "Healthy-life-expectancy.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-healthyLife$cRank <- rank(-healthyLife$cRatio, na.last = TRUE, ties.method = "min")
+healthyLife <- addMoreInfoColumns(healthyLife)
 ```
 
 ### Sex ratio at birth
@@ -172,12 +232,19 @@ healthyLife$cRank <- rank(-healthyLife$cRatio, na.last = TRUE, ties.method = "mi
 kable(birthRatio, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(birthRatio$FMT, birthRatio$FMT, "Sex ratio at birth")
+````
+
 ### Healthy life expectancy
 
 ````{r, echo=FALSE}
 kable(healthyLife, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(healthyLife$FMT, healthyLife$cRatio, "Sex ratio at birth")
+````
 
 ## Political empowerment
 
@@ -185,17 +252,17 @@ kable(healthyLife, digits = 2)
 womenInParliament <- read.csv2(file = "Women-in-parliament.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-womenInParliament$cRank <- rank(-womenInParliament$cRatio, na.last = TRUE, ties.method = "min")
+womenInParliament <- addMoreInfoColumns(womenInParliament)
 
 womenMinisters <- read.csv2(file = "Women-in-ministerial-positions.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-womenMinisters$cRank <- rank(-womenMinisters$cRatio, na.last = TRUE, ties.method = "min")
+womenMinisters <- addMoreInfoColumns(womenMinisters)
 
 femaleHeadOfState <- read.csv2(file = "Years-with-female-head-of-state.csv",
                    sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
                    col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
-femaleHeadOfState$cRank <- rank(-femaleHeadOfState$cRatio, na.last = TRUE, ties.method = "min")
+femaleHeadOfState <- addMoreInfoColumns(femaleHeadOfState)
 ```
 
 
@@ -205,10 +272,18 @@ femaleHeadOfState$cRank <- rank(-femaleHeadOfState$cRatio, na.last = TRUE, ties.
 kable(womenInParliament, digits = 2)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+linechart(womenInParliament$FMT, womenInParliament$cRatio, "Women in parliament")
+````
+
 ### Women in ministerial positions
 
 ````{r, echo=FALSE}
 kable(womenMinisters, digits = 2)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+linechart(womenMinisters$FMT, womenMinisters$cRatio, "Women in ministerial positions")
 ````
 
 ### Years with female head of state
@@ -216,6 +291,11 @@ kable(womenMinisters, digits = 2)
 ````{r, echo=FALSE}
 kable(femaleHeadOfState, digits = 2)
 ````
+
+````{r, echo=FALSE, fig.align='center'}
+linechart(femaleHeadOfState$FMT, femaleHeadOfState$cRatio, "Years with female head of state")
+````
+
 
 # Appendix 1 {#appendix-1}
 
