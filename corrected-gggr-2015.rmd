@@ -36,7 +36,7 @@ linechart <- function(origData, correctedData, chartLabel) {
              at = NULL, xlim = c(0,1), ylim = NULL,
              ylab = "", xlab = "",
              log = "", cex.main = 0.8,  col="green", pch=2)
-  legend("topleft", legend = c("original", "corrected"), col=c("blue", "green"), pch=c(1,2))
+  legend("bottomleft", legend = c("original", "corrected"), col=c("blue", "green"), pch=c(1,2))
 }
 
 addMoreInfoColumns <- function(dataFrame) {
@@ -46,7 +46,12 @@ addMoreInfoColumns <- function(dataFrame) {
                                     sprintf("↑%d", dataFrame$rank - dataFrame$cRank),
                                     "="),
                              sprintf("↓%d", dataFrame$cRank - dataFrame$rank))
+  dataFrame <- dataFrame[order(dataFrame$cRank, na.last = TRUE), , drop = FALSE]
   return(dataFrame)
+}
+
+printTable <- function(dataFrame) {
+  kable(dataFrame, digits = 2, row.names = FALSE)
 }
 
 ```
@@ -102,7 +107,7 @@ techWorkers <- addMoreInfoColumns(techWorkers)
 ### Labour force participation
 
 ````{r, echo=FALSE}
-kable(labForcePart, digits = 2)
+printTable(labForcePart)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -112,7 +117,7 @@ linechart(labForcePart$FMT, labForcePart$cRatio, "Labour force participation")
 ### Wage equality
 
 ````{r, echo=FALSE}
-kable(wageEq, digits = 2)
+printTable(wageEq)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -123,13 +128,13 @@ linechart(wageEq$FMT, wageEq$cRatio, "Wage equality")
 ### Estimated earned income
 
 ````{r, echo=FALSE}
-kable(estEarnedIncome, digits = 2)
+printTable(estEarnedIncome)
 ````
 
 ### Legislators, senior officials and managers
 
 ````{r, echo=FALSE}
-kable(legSenMan, digits = 2)
+printTable(legSenMan)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -140,7 +145,7 @@ linechart(legSenMan$FMT, legSenMan$cRatio, "Legislators, senior officials and ma
 ### Professional and technical workers
 
 ````{r, echo=FALSE}
-kable(techWorkers, digits = 2)
+printTable(techWorkers)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -172,7 +177,7 @@ literacy <- addMoreInfoColumns(literacy)
 ### Literacy
 
 ````{r, echo=FALSE}
-kable(literacy, digits = 2)
+printTable(literacy)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -183,7 +188,7 @@ linechart(literacy$FMT, literacy$cRatio, "Literacy")
 ### Primary education enrollment
 
 ````{r, echo=FALSE}
-kable(primEd, digits = 2)
+printTable(primEd)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -194,7 +199,7 @@ linechart(primEd$FMT, primEd$cRatio, "Primary education enrollment")
 ### Secondary education enrollment
 
 ````{r, echo=FALSE}
-kable(secEd, digits = 2)
+printTable(secEd)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -204,7 +209,7 @@ linechart(secEd$FMT, secEd$cRatio, "Secondary education enrollment")
 ### Tertiary education enrollment
 
 ````{r, echo=FALSE}
-kable(terEd, digits = 2)
+printTable(terEd)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -225,7 +230,7 @@ healthyLife <- addMoreInfoColumns(healthyLife)
 ### Sex ratio at birth
 
 ````{r, echo=FALSE}
-kable(birthRatio, digits = 2)
+printTable(birthRatio)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -235,7 +240,7 @@ linechart(birthRatio$FMT, birthRatio$FMT, "Sex ratio at birth")
 ### Healthy life expectancy
 
 ````{r, echo=FALSE}
-kable(healthyLife, digits = 2)
+printTable(healthyLife)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -262,7 +267,7 @@ femaleHeadOfState <- addMoreInfoColumns(femaleHeadOfState)
 ### Women in parliament
 
 ````{r, echo=FALSE}
-kable(womenInParliament, digits = 2)
+printTable(womenInParliament)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -272,7 +277,7 @@ linechart(womenInParliament$FMT, womenInParliament$cRatio, "Women in parliament"
 ### Women in ministerial positions
 
 ````{r, echo=FALSE}
-kable(womenMinisters, digits = 2)
+printTable(womenMinisters)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -282,7 +287,7 @@ linechart(womenMinisters$FMT, womenMinisters$cRatio, "Women in ministerial posit
 ### Years with female head of state
 
 ````{r, echo=FALSE}
-kable(femaleHeadOfState, digits = 2)
+printTable(femaleHeadOfState)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
