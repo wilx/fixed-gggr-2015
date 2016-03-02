@@ -12,10 +12,12 @@ geometry:
     - a4paper
     - margin=2cm
 mainfont: TeX Gyre Schola
----
+...
 
 ```{r, echo=FALSE}
 library(knitr)
+library(sqldf)
+library(tcltk)
 
 readCsv <- function(fileName, colNames) {
   DF <- read.csv2(fileName, fileEncoding = "UTF-8",
@@ -50,8 +52,18 @@ addMoreInfoColumns <- function(dataFrame) {
   return(dataFrame)
 }
 
+subIndexTweak <- function(dataFrame) {
+  dataFrame$rank <- rank(-dataFrame$subindex, na.last = TRUE, ties.method = "min")
+  dataFrame <- dataFrame[order(dataFrame$rank, na.last = TRUE), , drop = FALSE]
+  return(dataFrame)
+}
+
 printTable <- function(dataFrame) {
   kable(dataFrame, digits = 2, row.names = FALSE)
+}
+
+printSubIndexWeights <- function(dataFrame) {
+  kable(dataFrame, digits = 3, row.names = FALSE)
 }
 
 ```
@@ -60,7 +72,7 @@ printTable <- function(dataFrame) {
 
 Why am I doing this?
 
-:   Because the [Global Gender Gap Report](http://reports.weforum.org/global-gender-gap-report-2015/)
+:   Because the [Global Gender Gap Report](http://reports.weforum.org/global-gender-gap-report-2015/) (henceforth GGGR)
     and its indexes does not accurately reflect gender
     gaps that favour females. Ranks and indexes of some of the countries will be significantly different
     if the gap is penalized both when it favours males and when it favours females.
@@ -78,7 +90,7 @@ How was this PDF produced?
     See [Appendix 1](#appendix-1) for details. There is GitHub repository
     [`wilx/fixed-gggr-2015`](https://github.com/wilx/fixed-gggr-2015) that contains all the necessary
     sources and generated files to build this PDF file, except for the original
-    Global Gender Gap Report 2015 PDF file.
+    GGGR 2015 PDF file.
 
 ## Economic participation and opportunity
 
@@ -101,6 +113,19 @@ legSenMan <- addMoreInfoColumns(legSenMan)
 techWorkers <- readCsv("Professional-and-technical-workers.csv",
                        c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 techWorkers <- addMoreInfoColumns(techWorkers)
+
+subIndexEcon <- sqldf("SELECT country,
+                         (COALESCE(labForcePart.cRatio, 0) * 0.199
+                          + COALESCE(wageEq.cRatio, 0) * 0.310
+                          + COALESCE(estEarnedIncome.FMT, 0) * 0.221
+                          + COALESCE(legSenMan.cRatio, 0) * 0.149
+                          + COALESCE(techWorkers.cRatio, 0) * 0.121) AS [subindex]
+                      FROM labForcePart
+                      JOIN wageEq USING (country)
+                      JOIN estEarnedIncome USING (country)
+                      JOIN legSenMan USING (country)
+                      JOIN techWorkers USING (country)")
+subIndexEcon <- subIndexTweak(subIndexEcon)
 
 ```
 
@@ -152,6 +177,27 @@ printTable(techWorkers)
 linechart(techWorkers$FMT, techWorkers$cRatio, "Professional and technical workers")
 ````
 
+### Subindex
+
+With all the corrected ratios calculated above we can now calcualte the Economic Participation and Opportunity Subindex.
+According to the original GGGR 2015, the subindex is weighted average of ratios obtained earlier with these weights:
+
+````{r, echo=FALSE}
+printSubIndexWeights(
+  data.frame(ratio = c("Ratio: female labour force participation over male value",
+                       "Wage equality between women and men for similar work (converted to female-over-male ratio)",
+                       "Ratio: female estimated earned income over male value",
+                       "Ratio: female legislators, senior officials and managers over male value",
+                       "Ratio: female professional and technical workers over male value"),
+             weight = c(0.199, 0.310, 0.221, 0.149, 0.121)))
+````
+
+The resulting corrected country ranks and subindex values are as follows:
+
+````{r, echo=FALSE}
+printTable(subIndexEcon)
+````
+
 
 ## Education attainment
 
@@ -171,6 +217,17 @@ terEd <- addMoreInfoColumns(terEd)
 literacy <- readCsv("Literacy-rate.csv",
                     c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 literacy <- addMoreInfoColumns(literacy)
+
+subIndexEdu <- sqldf("SELECT country,
+                         (COALESCE(primEd.cRatio, secEd.cRatio, terEd.cRatio, 0) * 0.191
+                          + COALESCE(secEd.cRatio, terEd.cRatio, 0) * 0.459
+                          + COALESCE(terEd.cRatio, 0) * 0.230
+                          + COALESCE(literacy.cRatio, 0) * 0.121) AS [subindex]
+                      FROM primEd
+                      JOIN secEd USING (country)
+                      JOIN terEd USING (country)
+                      JOIN literacy USING (country)")
+subIndexEdu <- subIndexTweak(subIndexEdu)
 
 ```
 
@@ -215,6 +272,28 @@ printTable(terEd)
 ````{r, echo=FALSE, fig.align='center'}
 linechart(terEd$FMT, terEd$cRatio, "Tertiary education enrollment")
 ````
+
+### Subindex
+
+With all the corrected ratios calculated above we can now calcualte the Educational Attainment Subindex.
+According to the original GGGR 2015, the subindex has the following weights:
+
+````{r, echo=FALSE}
+printSubIndexWeights(
+  data.frame(ratio = c("Ratio: female literacy rate over male value",
+                       "Ratio: female net primary enrolment rate over male value",
+                       "Ratio: female net secondary enrolment rate over male value",
+                       "Ratio: female gross tertiary enrolement ratio over male value"),
+             weight = c(0.191, 0.459, 0.230, 0.121)))
+````
+
+The resulting corrected country ranks and subindex values are as follows:
+
+````{r, echo=FALSE}
+printTable(subIndexEdu)
+````
+
+
 
 ## Health and survival
 
@@ -297,7 +376,7 @@ linechart(femaleHeadOfState$FMT, femaleHeadOfState$cRatio, "Years with female he
 
 # Appendix 1 {#appendix-1}
 
-The following Perl script was used to scrape Global Gender Gap Report PDF file and produce separate CSV for each table:
+The following Perl script was used to scrape GGGR PDF file and produce separate CSV for each table:
 
 ```perl
 use strict;
