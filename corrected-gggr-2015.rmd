@@ -78,7 +78,7 @@ printSubIndexWeights <- function(dataFrame) {
 
 ```
 
-# Corrected Global Gender Gap Report 2015
+# Introduction
 
 TL;DR
 
@@ -114,7 +114,7 @@ What do all these numbers and tables mean?
 :   Please consult the orignal [GGGR](http://reports.weforum.org/global-gender-gap-report-2015/)
     for more information and explanations.
     
-Why are do some tables have coparison with the original report and some do not?
+Why do some tables have comparison with the original report and some do not?
 
 :   Scraping the original PDF for the data is hard.
 
@@ -126,7 +126,7 @@ How was this PDF produced?
     sources and generated files to build this PDF file, except for the original
     GGGR 2015 PDF file.
 
-## Economic participation and opportunity
+# Economic participation and opportunity
 
 ```{r, echo=FALSE}
 labForcePart <- readCsv("Labour-force-participation.csv",
@@ -163,7 +163,7 @@ subIndexEcon <- subIndexTweak(subIndexEcon)
 
 ```
 
-### Labour force participation
+## Labour force participation
 
 ````{r, echo=FALSE}
 printTable(labForcePart)
@@ -173,7 +173,7 @@ printTable(labForcePart)
 linechart(labForcePart$FMT, labForcePart$cRatio, "Labour force participation")
 ````
 
-### Wage equality
+## Wage equality
 
 ````{r, echo=FALSE}
 printTable(wageEq)
@@ -184,7 +184,7 @@ linechart(wageEq$FMT, wageEq$cRatio, "Wage equality")
 ````
 
 
-### Estimated earned income
+## Estimated earned income
 
 For estimated earned income, I am using the original data as they were.
 
@@ -192,7 +192,7 @@ For estimated earned income, I am using the original data as they were.
 printTable(estEarnedIncome)
 ````
 
-### Legislators, senior officials and managers
+## Legislators, senior officials and managers
 
 ````{r, echo=FALSE}
 printTable(legSenMan)
@@ -203,7 +203,7 @@ linechart(legSenMan$FMT, legSenMan$cRatio, "Legislators, senior officials and ma
 ````
 
 
-### Professional and technical workers
+## Professional and technical workers
 
 ````{r, echo=FALSE}
 printTable(techWorkers)
@@ -213,9 +213,9 @@ printTable(techWorkers)
 linechart(techWorkers$FMT, techWorkers$cRatio, "Professional and technical workers")
 ````
 
-### Subindex
+## Subindex
 
-With all the corrected ratios calculated above we can now calcualte the Economic Participation and Opportunity Subindex.
+With all the corrected ratios calculated above we can now calculate the Economic Participation and Opportunity Subindex.
 According to the original GGGR 2015, the subindex is weighted average of ratios obtained earlier with these weights:
 
 ````{r, echo=FALSE}
@@ -235,7 +235,7 @@ printTable(subIndexEcon)
 ````
 
 
-## Education attainment
+# Education attainment
 
 ```{r, echo=FALSE}
 primEd <- readCsv("Enrolment-in-primary-education.csv",
@@ -267,7 +267,7 @@ subIndexEdu <- subIndexTweak(subIndexEdu)
 
 ```
 
-### Literacy
+## Literacy
 
 ````{r, echo=FALSE}
 printTable(literacy)
@@ -278,7 +278,7 @@ linechart(literacy$FMT, literacy$cRatio, "Literacy")
 ````
 
 
-### Primary education enrollment
+## Primary education enrollment
 
 ````{r, echo=FALSE}
 printTable(primEd)
@@ -289,7 +289,7 @@ linechart(primEd$FMT, primEd$cRatio, "Primary education enrollment")
 ````
 
 
-### Secondary education enrollment
+## Secondary education enrollment
 
 ````{r, echo=FALSE}
 printTable(secEd)
@@ -299,7 +299,7 @@ printTable(secEd)
 linechart(secEd$FMT, secEd$cRatio, "Secondary education enrollment")
 ````
 
-### Tertiary education enrollment
+## Tertiary education enrollment
 
 ````{r, echo=FALSE}
 printTable(terEd)
@@ -309,9 +309,9 @@ printTable(terEd)
 linechart(terEd$FMT, terEd$cRatio, "Tertiary education enrollment")
 ````
 
-### Subindex
+## Subindex
 
-With all the corrected ratios calculated above we can now calcualte the Educational Attainment Subindex.
+With all the corrected ratios calculated above we can now calculate the Educational Attainment Subindex.
 According to the original GGGR 2015, the subindex has the following weights:
 
 ````{r, echo=FALSE}
@@ -331,7 +331,7 @@ printTable(subIndexEdu)
 
 
 
-## Health and survival
+# Health and survival
 
 ```{r, echo=FALSE}
 birthRatio <- readCsv("Sex-ratio-at-birth.csv",
@@ -349,7 +349,7 @@ subIndexHealth <- sqldf("SELECT country,
 subIndexHealth <- subIndexTweak(subIndexHealth)
 ```
 
-### Sex ratio at birth
+## Sex ratio at birth
 
 ````{r, echo=FALSE}
 printTable(birthRatio)
@@ -359,7 +359,7 @@ printTable(birthRatio)
 linechart(birthRatio$FMT, birthRatio$FMT, "Sex ratio at birth")
 ````
 
-### Healthy life expectancy
+## Healthy life expectancy
 
 ````{r, echo=FALSE}
 printTable(healthyLife)
@@ -369,9 +369,9 @@ printTable(healthyLife)
 linechart(healthyLife$FMT, healthyLife$cRatio, "Sex ratio at birth")
 ````
 
-### Subindex
+## Subindex
 
-With all the corrected ratios calculated above we can now calcualte the Health and Survival Subindex.
+With all the corrected ratios calculated above we can now calculate the Health and Survival Subindex.
 According to the original GGGR 2015, the subindex has the following weights:
 
 ````{r, echo=FALSE}
@@ -389,7 +389,7 @@ printTable(subIndexHealth)
 
 
 
-## Political empowerment
+# Political empowerment
 
 ```{r, echo=FALSE}
 womenInParliament <- readCsv("Women-in-parliament.csv",
@@ -415,7 +415,7 @@ subIndexPol <- subIndexTweak(subIndexPol)
 ```
 
 
-### Women in parliament
+## Women in parliament
 
 ````{r, echo=FALSE}
 printTable(womenInParliament)
@@ -425,7 +425,7 @@ printTable(womenInParliament)
 linechart(womenInParliament$FMT, womenInParliament$cRatio, "Women in parliament")
 ````
 
-### Women in ministerial positions
+## Women in ministerial positions
 
 ````{r, echo=FALSE}
 printTable(womenMinisters)
@@ -435,7 +435,7 @@ printTable(womenMinisters)
 linechart(womenMinisters$FMT, womenMinisters$cRatio, "Women in ministerial positions")
 ````
 
-### Years with female head of state
+## Years with female head of state
 
 ````{r, echo=FALSE}
 printTable(femaleHeadOfState)
@@ -445,9 +445,9 @@ printTable(femaleHeadOfState)
 linechart(femaleHeadOfState$FMT, femaleHeadOfState$cRatio, "Years with female head of state")
 ````
 
-### Subindex
+## Subindex
 
-With all the corrected ratios calculated above we can now calcualte the Political Empowerment Subindex.
+With all the corrected ratios calculated above we can now calculate the Political Empowerment Subindex.
 According to the original GGGR 2015, the subindex has the following weights:
 
 ````{r, echo=FALSE}
@@ -465,7 +465,7 @@ printTable(subIndexPol)
 ````
 
 
-## Corrected Global Gender Gap Index {#corrected-gggr-2015}
+# Corrected Global Gender Gap Index {#corrected-gggr-2015}
 
 ````{r, echo=FALSE}
 finalIndex <- sqldf("SELECT country,
