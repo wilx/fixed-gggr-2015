@@ -3,8 +3,8 @@ title: "Corrected Global Gender Gap Report 2015"
 author: "Václav Haisman"
 date: "March 1, 2016"
 toc: true
-output: 
-  pdf_document: 
+output:
+  pdf_document:
     latex_engine: xelatex
     number_sections: true
 language: english
@@ -57,20 +57,20 @@ Why am I doing this?
     and its indexes does not accurately reflect gender
     gaps that favour females. Ranks and indexes of some of the countries will be significantly different
     if the gap is penalized both when it favours males and when it favours females.
-    
+
 How does this differ from the original report?
 
 :   Whenever there is inequality (gap) affecting males favouring females, the original report
-    truncates any ratio at value 1. In this report, table colum cRatio (corrected ratio) is 
+    truncates any ratio at value 1. In this report, table colum cRatio (corrected ratio) is
     calculated as inverse value ($\frac{1}{ratio}$) of the original ratio. There is also new column
     cRank (corrected rank) which shows ranking of the countries using the cRatio column.
-    
+
 How was this PDF produced?
 
 :   This PDF was produced by use of several tools: `pdftohtml`, Perl, R, RStudio and RMarkdown.
     See [Appendix 1](#appendix-1) for details. There is GitHub repository
     [`wilx/fixed-gggr-2015`](https://github.com/wilx/fixed-gggr-2015) that contains all the necessary
-    sources and generated files to build this PDF file, except for the original 
+    sources and generated files to build this PDF file, except for the original
     Global Gender Gap Report 2015 PDF file.
 
 ## Economic participation and opportunity
@@ -345,7 +345,7 @@ foreach my $page ($pages->get_nodelist) {
 
     my $file_name = $table_title;
     $file_name =~ s/.*?:\s*(\S.*)/$1/;
-    $file_name =~ s/\s+/-/g;    
+    $file_name =~ s/\s+/-/g;
     my $table_name = $file_name;
     $file_name .= '.csv';
     my $csv = Text::CSV::Encoded->new({encoding => undef, binary => 1});
@@ -357,7 +357,7 @@ foreach my $page ($pages->get_nodelist) {
 
     # Each record specifies columns of F/M ratio, F/M ratio truncated and
     # rank.
-    
+
     my %table_info = (
         'Enrolment-in-primary-education' => [3, 4, 5],
         'Enrolment-in-secondary-education' => [3, 4, 5],
@@ -408,7 +408,7 @@ foreach my $page ($pages->get_nodelist) {
             push @row, $fmr;
             #push @row, $diff;
         }
-        
+
         $csv->print($f, \@row);
         print $f "\n";
     }
