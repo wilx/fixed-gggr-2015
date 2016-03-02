@@ -17,6 +17,13 @@ mainfont: TeX Gyre Schola
 ```{r, echo=FALSE}
 library(knitr)
 
+readCsv <- function(fileName, colNames) {
+  DF <- read.csv2(fileName, fileEncoding = "UTF-8",
+                  sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
+                  col.names = colNames)
+  return(DF)
+}
+
 linechart <- function(origData, correctedData, chartLabel) {
   frame()
   stripchart(origData, method = "stack",# jitter = 0.1, offset = 1/3,
@@ -71,28 +78,23 @@ How was this PDF produced?
 ## Economic participation and opportunity
 
 ```{r, echo=FALSE}
-labForcePart <- read.csv2(file = "Labour-force-participation.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+labForcePart <- readCsv("Labour-force-participation.csv",
+                        c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 labForcePart <- addMoreInfoColumns(labForcePart)
 
-wageEq <- read.csv2(file = "Wage-equality-survey.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "survey data", "FM", "FMT", "rank", "cRatio"))
+wageEq <- readCsv("Wage-equality-survey.csv",
+                  c("country", "survey data", "FM", "FMT", "rank", "cRatio"))
 wageEq <- addMoreInfoColumns(wageEq)
 
-estEarnedIncome <- read.csv2(file = "Estimated-earned-income.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "female cut-off", "male cut-off", "FMT", "rank"))
+estEarnedIncome <- readCsv("Estimated-earned-income.csv",
+                   c("country", "female", "male", "female cut-off", "male cut-off", "FMT", "rank"))
 
-legSenMan <- read.csv2(file = "Legislators,-senior-officials-and-managers.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+legSenMan <- readCsv("Legislators,-senior-officials-and-managers.csv",
+                     c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 legSenMan <- addMoreInfoColumns(legSenMan)
 
-techWorkers <- read.csv2(file = "Professional-and-technical-workers.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+techWorkers <- readCsv("Professional-and-technical-workers.csv",
+                       c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 techWorkers <- addMoreInfoColumns(techWorkers)
 
 ```
@@ -149,24 +151,20 @@ linechart(techWorkers$FMT, techWorkers$cRatio, "Professional and technical worke
 ## Education attainment
 
 ```{r, echo=FALSE}
-primEd <- read.csv2(file = "Enrolment-in-primary-education.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+primEd <- readCsv("Enrolment-in-primary-education.csv",
+                  c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 primEd <- addMoreInfoColumns(primEd)
 
-secEd <- read.csv2(file = "Enrolment-in-secondary-education.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+secEd <- readCsv("Enrolment-in-secondary-education.csv",
+                 c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 secEd <- addMoreInfoColumns(secEd)
 
-terEd <- read.csv2(file = "Enrolment-in-tertiary-education.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+terEd <- readCsv("Enrolment-in-tertiary-education.csv",
+                 c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 terEd <- addMoreInfoColumns(terEd)
 
-literacy <- read.csv2(file = "Literacy-rate.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+literacy <- readCsv("Literacy-rate.csv",
+                    c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 literacy <- addMoreInfoColumns(literacy)
 
 ```
@@ -216,13 +214,11 @@ linechart(terEd$FMT, terEd$cRatio, "Tertiary education enrollment")
 ## Health and survival
 
 ```{r, echo=FALSE}
-birthRatio <- read.csv2(file = "Sex-ratio-at-birth.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FMT", "rank"))
+birthRatio <- readCsv("Sex-ratio-at-birth.csv",
+                      c("country", "female", "male", "FMT", "rank"))
 
-healthyLife <- read.csv2(file = "Healthy-life-expectancy.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+healthyLife <- readCsv("Healthy-life-expectancy.csv",
+                       c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 healthyLife <- addMoreInfoColumns(healthyLife)
 ```
 
@@ -249,19 +245,16 @@ linechart(healthyLife$FMT, healthyLife$cRatio, "Sex ratio at birth")
 ## Political empowerment
 
 ```{r, echo=FALSE}
-womenInParliament <- read.csv2(file = "Women-in-parliament.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+womenInParliament <- readCsv("Women-in-parliament.csv",
+                             c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 womenInParliament <- addMoreInfoColumns(womenInParliament)
 
-womenMinisters <- read.csv2(file = "Women-in-ministerial-positions.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+womenMinisters <- readCsv("Women-in-ministerial-positions.csv",
+                          c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 womenMinisters <- addMoreInfoColumns(womenMinisters)
 
-femaleHeadOfState <- read.csv2(file = "Years-with-female-head-of-state.csv",
-                   sep = ",", quote = "\"", header = FALSE, dec = ".", na.strings = c("—"),
-                   col.names = c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
+femaleHeadOfState <- readCsv("Years-with-female-head-of-state.csv",
+                             c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 femaleHeadOfState <- addMoreInfoColumns(femaleHeadOfState)
 ```
 
