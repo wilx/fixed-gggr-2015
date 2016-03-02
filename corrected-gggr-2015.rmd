@@ -14,10 +14,14 @@ geometry:
 mainfont: TeX Gyre Schola
 ...
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 library(knitr)
 library(sqldf)
 library(tcltk)
+library(gsubfn)
+library(proto)
+library(RSQLite)
+library(DBI)
 
 readCsv <- function(fileName, colNames) {
   DF <- read.csv2(fileName, fileEncoding = "UTF-8",
@@ -58,6 +62,12 @@ subIndexTweak <- function(dataFrame) {
   return(dataFrame)
 }
 
+finalIndexTweak <- function(dataFrame) {
+  dataFrame$rank <- rank(-dataFrame$index, na.last = TRUE, ties.method = "min")
+  dataFrame <- dataFrame[order(dataFrame$rank, na.last = TRUE), , drop = FALSE]
+  return(dataFrame)
+}
+
 printTable <- function(dataFrame) {
   kable(dataFrame, digits = 2, row.names = FALSE)
 }
@@ -69,6 +79,10 @@ printSubIndexWeights <- function(dataFrame) {
 ```
 
 # Corrected Global Gender Gap Report 2015
+
+TL;DR
+
+:   Go to the [Corrected Global Gender Gap Index](#corrected-gggr-2015) section.
 
 Why am I doing this?
 
@@ -83,6 +97,10 @@ How does this differ from the original report?
     truncates any ratio at value 1. In this report, table colum cRatio (corrected ratio) is
     calculated as inverse value ($\frac{1}{ratio}$) of the original ratio. There is also new column
     cRank (corrected rank) which shows ranking of the countries using the cRatio column.
+    
+Why are do some tables have coparison with the original report and some do not?
+
+:   Scraping the original PDF for the data is hard.
 
 How was this PDF produced?
 
@@ -428,6 +446,38 @@ The resulting corrected country ranks and subindex values are as follows:
 printTable(subIndexPol)
 ````
 
+
+## Corrected Global Gender Gap Index {#corrected-gggr-2015}
+
+````{r, echo=FALSE}
+finalIndex <- sqldf("SELECT country,
+                         ((COALESCE(subIndexEcon.subindex, 0)
+                           + COALESCE(subIndexEdu.subindex, 0)
+                           + COALESCE(subIndexHealth.subindex, 0)
+                           + COALESCE(subIndexPol.subindex, 0))
+                          / 4.0) AS [index]
+                      FROM subIndexEcon
+                      JOIN subIndexEdu USING (country)
+                      JOIN subIndexHealth USING (country)
+                      JOIN subIndexPol USING (country)")
+finalIndex <- finalIndexTweak(finalIndex)
+````
+
+The final index is unweighted average of the four subindexes calculated above:
+
+````{r, echo=FALSE}
+printTable(finalIndex)
+````
+
+````{r, echo=FALSE}
+stripchart(finalIndex$index, method = "stack",# jitter = 0.1, offset = 1/3,
+           vertical = FALSE, add = FALSE,
+           at = NULL, xlim = c(0,1), ylim = NULL,
+           main = "Corrected Global Gender Gap Index", family = "serif", ylab = "", xlab = "ratio",
+           log = "", cex.main = 0.8, col="blue", pch=1)
+````
+
+To compare these corrected results with the original GGGR 2015, you will have to consult the original report PDF.
 
 # Appendix 1 {#appendix-1}
 
