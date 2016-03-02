@@ -469,6 +469,19 @@ The final index is unweighted average of the four subindexes calculated above:
 printTable(finalIndex)
 ````
 
+Here are basic statistical description values of the final index:
+
+````{r, echo=FALSE}
+finalIndexSummaryDF <- data.frame(statistic = c("mean", "sd", "median", "min", "max", "N"),
+                                  value = c(mean(finalIndex$index),
+                                            sd(finalIndex$index),
+                                            median(finalIndex$index),
+                                            min(finalIndex$index),
+                                            max(finalIndex$index),
+                                            length(finalIndex$index)))
+kable(finalIndexSummaryDF, digits = 4, row.names = FALSE)
+````
+
 ````{r, echo=FALSE}
 stripchart(finalIndex$index, method = "stack",# jitter = 0.1, offset = 1/3,
            vertical = FALSE, add = FALSE,
@@ -478,6 +491,7 @@ stripchart(finalIndex$index, method = "stack",# jitter = 0.1, offset = 1/3,
 ````
 
 To compare these corrected results with the original GGGR 2015, you will have to consult the original report PDF.
+
 
 # Appendix 1 {#appendix-1}
 
