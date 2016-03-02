@@ -497,11 +497,11 @@ finalIndex <- sqldf("SELECT country,
                           subIndexHealth.subindex AS [he.SI],
                           subIndexPol.rank AS [po.R],
                           subIndexPol.subindex AS [po.SI]
-                      FROM subIndexEcon
-                      JOIN subIndexEdu USING (country)
-                      JOIN subIndexHealth USING (country)
-                      JOIN subIndexPol USING (country)
-                      JOIN originalIndex USING (country)")
+                      FROM originalIndex
+                      LEFT OUTER JOIN subIndexEcon USING (country)
+                      LEFT OUTER JOIN subIndexEdu USING (country)
+                      LEFT OUTER JOIN subIndexHealth USING (country)
+                      LEFT OUTER JOIN subIndexPol USING (country)")
 finalIndex <- finalIndexTweak(finalIndex)
 finalIndex$diff <- computeChangeColumn(finalIndex$old.R, finalIndex$rank)
 finalIndex <- finalIndex[c(1, 13, 2, 14, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)]
