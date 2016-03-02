@@ -10,7 +10,8 @@ output:
 language: english
 geometry:
     - a4paper
-    - margin=2cm
+    - hmargin=1cm
+    - vmargin=2cm
 mainfont: TeX Gyre Schola
 ---
 
@@ -45,13 +46,18 @@ linechart <- function(origData, correctedData, chartLabel) {
   legend("bottomleft", legend = c("original", "corrected"), col=c("blue", "green"), pch=c(1,2))
 }
 
+computeChangeColumn <- function(oldRank, newRank) {
+    change <- ifelse(newRank <= oldRank,
+                     ifelse(newRank < oldRank,
+                            sprintf("↑%d", oldRank - newRank),
+                            "="),
+                     sprintf("↓%d", newRank - oldRank))
+    return(change)
+}
+
 addMoreInfoColumns <- function(dataFrame) {
   dataFrame$cRank <- rank(-dataFrame$cRatio, na.last = TRUE, ties.method = "min")
-  dataFrame$change <- ifelse(dataFrame$cRank <= dataFrame$rank,
-                             ifelse(dataFrame$cRank < dataFrame$rank,
-                                    sprintf("↑%d", dataFrame$rank - dataFrame$cRank),
-                                    "="),
-                             sprintf("↓%d", dataFrame$cRank - dataFrame$rank))
+  dataFrame$change <- computeChangeColumn(dataFrame$rank, dataFrame$cRank)
   dataFrame <- dataFrame[order(dataFrame$cRank, na.last = TRUE), , drop = FALSE]
   return(dataFrame)
 }
@@ -468,32 +474,44 @@ printTable(subIndexPol)
 # Corrected Global Gender Gap Index {#corrected-gggr-2015}
 
 ````{r, echo=FALSE}
+originalIndex <- readCsv("global-index.csv",
+                         c("country", "rank", "index",
+                           "econ.R", "econ.SI",
+                           "edu.R", "edu.SI",
+                           "he.R", "he.SI",
+                           "pol.R", "pol.SI"))
+
 finalIndex <- sqldf("SELECT country,
                          ((COALESCE(subIndexEcon.subindex, 0)
                            + COALESCE(subIndexEdu.subindex, 0)
                            + COALESCE(subIndexHealth.subindex, 0)
                            + COALESCE(subIndexPol.subindex, 0))
                           / 4.0) AS [index],
-                          subIndexEcon.rank AS [econ.R],
-                          subIndexEcon.subindex AS [econ.SI],
-                          subIndexEdu.rank AS [edu.R],
-                          subIndexEdu.subindex AS [edu.SI],
+                          originalIndex.rank AS [old.R],
+                          originalIndex.[index] AS [old.I],
+                          subIndexEcon.rank AS [ec.R],
+                          subIndexEcon.subindex AS [ec.SI],
+                          subIndexEdu.rank AS [ed.R],
+                          subIndexEdu.subindex AS [ed.SI],
                           subIndexHealth.rank AS [he.R],
                           subIndexHealth.subindex AS [he.SI],
-                          subIndexPol.rank AS [pol.R],
-                          subIndexPol.subindex AS [pol.SI]
+                          subIndexPol.rank AS [po.R],
+                          subIndexPol.subindex AS [po.SI]
                       FROM subIndexEcon
                       JOIN subIndexEdu USING (country)
                       JOIN subIndexHealth USING (country)
-                      JOIN subIndexPol USING (country)")
-finalIndex <- finalIndexTweak(finalIndex)[c(1, 11, 2, 3, 4, 5, 6, 7, 8, 9, 10)]
+                      JOIN subIndexPol USING (country)
+                      JOIN originalIndex USING (country)")
+finalIndex <- finalIndexTweak(finalIndex)
+finalIndex$diff <- computeChangeColumn(finalIndex$old.R, finalIndex$rank)
+finalIndex <- finalIndex[c(1, 13, 2, 14, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)]
 
 ````
 
 The final index is unweighted average of the four subindexes calculated above:
 
 ````{r, echo=FALSE}
-printTable(finalIndex)
+printSubIndexWeights(finalIndex)
 ````
 
 Here are basic statistical description values of the final index:
