@@ -304,6 +304,13 @@ birthRatio <- readCsv("Sex-ratio-at-birth.csv",
 healthyLife <- readCsv("Healthy-life-expectancy.csv",
                        c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 healthyLife <- addMoreInfoColumns(healthyLife)
+
+subIndexHealth <- sqldf("SELECT country,
+                         (COALESCE(birthRatio.FMT, 0) * 0.693
+                          + COALESCE(healthyLife.cRatio, 0) * 0.307) AS [subindex]
+                      FROM birthRatio
+                      JOIN healthyLife USING (country)")
+subIndexHealth <- subIndexTweak(subIndexHealth)
 ```
 
 ### Sex ratio at birth
@@ -326,6 +333,26 @@ printTable(healthyLife)
 linechart(healthyLife$FMT, healthyLife$cRatio, "Sex ratio at birth")
 ````
 
+### Subindex
+
+With all the corrected ratios calculated above we can now calcualte the Health and Survival Subindex.
+According to the original GGGR 2015, the subindex has the following weights:
+
+````{r, echo=FALSE}
+printSubIndexWeights(
+  data.frame(ratio = c("Sex ratio at birth (converted to female-over-male ratio)",
+                       "Ratio: female healthy life expectancy over male value"),
+             weight = c(0.693, 0.307)))
+````
+
+The resulting corrected country ranks and subindex values are as follows:
+
+````{r, echo=FALSE}
+printTable(subIndexHealth)
+````
+
+
+
 ## Political empowerment
 
 ```{r, echo=FALSE}
@@ -340,6 +367,15 @@ womenMinisters <- addMoreInfoColumns(womenMinisters)
 femaleHeadOfState <- readCsv("Years-with-female-head-of-state.csv",
                              c("country", "female", "male", "FM", "FMT", "rank", "cRatio"))
 femaleHeadOfState <- addMoreInfoColumns(femaleHeadOfState)
+
+subIndexPol <- sqldf("SELECT country,
+                         (COALESCE(womenInParliament.cRatio, 0) * 0.310
+                          + COALESCE(womenMinisters.cRatio, 0) * 0.247
+                          + COALESCE(femaleHeadOfState.cRatio, 0) * 0.443) AS [subindex]
+                      FROM womenInParliament
+                      JOIN womenMinisters USING (country)
+                      JOIN femaleHeadOfState USING (country)")
+subIndexPol <- subIndexTweak(subIndexPol)
 ```
 
 
@@ -371,6 +407,25 @@ printTable(femaleHeadOfState)
 
 ````{r, echo=FALSE, fig.align='center'}
 linechart(femaleHeadOfState$FMT, femaleHeadOfState$cRatio, "Years with female head of state")
+````
+
+### Subindex
+
+With all the corrected ratios calculated above we can now calcualte the Political Empowerment Subindex.
+According to the original GGGR 2015, the subindex has the following weights:
+
+````{r, echo=FALSE}
+printSubIndexWeights(
+  data.frame(ratio = c("Ratio: females with seats in parliament over male value",
+                       "Ratio: females at ministerial level over male value",
+                       "Ratio: number of years with a female head of state (last 50 years) over male value"),
+             weight = c(0.310, 0.247, 0.443)))
+````
+
+The resulting corrected country ranks and subindex values are as follows:
+
+````{r, echo=FALSE}
+printTable(subIndexPol)
 ````
 
 
