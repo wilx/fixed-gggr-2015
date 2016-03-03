@@ -101,13 +101,13 @@ Why am I doing this?
 How does this differ from the original report?
 
 :   Whenever there is inequality (gap) affecting males favouring females, the original report
-    truncates any ratio at value 1. In this report, table colum cRatio (corrected ratio) is
+    truncates any ratio at value 1. In this report, table column cRatio (corrected ratio) is
     calculated as inverse value ($\frac{1}{ratio}$) of the original ratio. There is also new column
     cRank (corrected rank) which shows ranking of the countries using the cRatio column.
     
 What is a subindex?
 
-:   Subindex is a weigted average of various female to male ratios.
+:   Subindex is a weighted average of various female to male ratios.
 
 What is Gender Gap Index?
 
@@ -117,7 +117,7 @@ What is Gender Gap Index?
     
 What do all these numbers and tables mean?
 
-:   Please consult the orignal [GGGR](http://reports.weforum.org/global-gender-gap-report-2015/)
+:   Please consult the original [GGGR](http://reports.weforum.org/global-gender-gap-report-2015/)
     for more information and explanations.
     
 Why do some tables have comparison with the original report and some do not?
