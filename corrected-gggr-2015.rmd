@@ -12,7 +12,7 @@ geometry:
     - a4paper
     - hmargin=1cm
     - vmargin=2cm
-mainfont: TeX Gyre Schola
+mainfont: Charis SIL
 ---
 
 ```{r, echo=FALSE, message=FALSE}
@@ -131,6 +131,53 @@ How was this PDF produced?
     [`wilx/fixed-gggr-2015`](https://github.com/wilx/fixed-gggr-2015) that contains all the necessary
     sources and generated files to build this PDF file, except for the original
     GGGR 2015 PDF file.
+    
+Here are some abbreviations commonly used in this document:
+
+FM
+
+:   female to male ratio
+
+FMT
+
+:   female to male ratio truncated, usually at value 1
+
+cRatio
+
+:   corrected ratio
+
+cRank
+
+:   corrected rank
+
+I
+
+:   index
+
+SI
+
+:   subindex, usually used as suffix
+
+R
+
+:   rank, usually used as suffix
+
+ec
+
+:   economy
+
+ed
+
+:   education
+
+he
+
+:   health
+
+po
+
+:   politics
+
 
 # Economic participation and opportunity
 
@@ -546,7 +593,7 @@ To compare these corrected results with the original GGGR 2015, you will have to
 
 # Appendix 1 {#appendix-1}
 
-The following Perl script was used to scrape GGGR PDF file and produce separate CSV for each table:
+The following Perl script was used to scrape GGGR PDF file and produce separate CSV for each subindex table:
 
 ```perl
 use strict;
@@ -661,6 +708,63 @@ The script uses `gggr.xml` file as its input. This file was produced by the foll
 
 ```bash
 pdftohtml -f $((52+8)) -l $((65+8)) -c -s -noframes -xml -enc UTF-8  gggr2015.pdf gggr
+```
+
+This script is used to produce `global-index.csv` file:
+
+```perl
+use strict;
+use XML::XPath;
+use XML::XPath::XMLParser;
+use Text::CSV::Encoded;
+use IO::File;
+use IO::Handle;
+use Data::Dumper;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+
+my $inputf = IO::File->new();
+$inputf->open("gggr-index.xml", "<");
+$inputf->binmode(":encoding(UTF-8)");
+my $xml;
+{
+    local $/;
+    $xml = <$inputf>;
+}
+my $xp = XML::XPath->new($xml);
+my @value_nodes = $xp->find(
+    '//page/text[@font = \'4\' and @height = \'10\']')->get_nodelist;
+my @value_text = map {$_->string_value} @value_nodes;
+
+# Count from 2nd element all elements that are numbers. This will be the
+# column count for this table.
+
+my $columns;
+for ($columns = 0; $value_text[$columns + 1] =~ /^\d/; ++$columns)
+{}
+++$columns;
+print STDERR "detected ", $columns, " columns\n";
+
+# Store the index rows.
+
+my $csv = Text::CSV::Encoded->new({encoding => undef, binary => 1});
+my $f = IO::File->new();
+$f->open("global-index.csv", ">");
+
+my $size = scalar @value_text;
+for (my $i = 0; $i < $size; $i += $columns) {
+    my @row = @value_text[$i..($i + $columns - 1)];
+
+    $csv->print($f, \@row);
+    print $f "\n";
+}
+```
+
+The `gggr-index.xml` file used by the above script as input is produced
+by the following command:
+
+```bash
+pdftohtml -f $((8+8)) -l $((9+8)) -c -s -noframes -xml -enc UTF-8  gggr2015.pdf gggr-index
 ```
 
 The `gggr2015.pdf` file can be [downloaded](http://reports.weforum.org/global-gender-gap-report-2015/) from World Economic Forum web site.
