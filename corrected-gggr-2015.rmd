@@ -18,11 +18,12 @@ mainfont: Charis SIL
 ```{r, echo=FALSE, message=FALSE}
 library(knitr)
 library(sqldf)
-library(tcltk)
-library(gsubfn)
-library(proto)
-library(RSQLite)
-library(DBI)
+#library(tcltk)
+#library(gsubfn)
+#library(proto)
+#library(RSQLite)
+#library(DBI)
+library(ggplot2)
 
 readCsv <- function(fileName, colNames) {
   DF <- read.csv2(fileName, fileEncoding = "UTF-8",
@@ -565,13 +566,32 @@ Here are basic statistical description values of the final index:
 
 ````{r, echo=FALSE}
 finalIndexSummaryDF <- data.frame(statistic = c("mean", "sd", "median", "min", "max", "N"),
-                                  value = c(mean(finalIndex$index),
+                                  corrected = c(mean(finalIndex$index),
                                             sd(finalIndex$index),
                                             median(finalIndex$index),
                                             min(finalIndex$index),
                                             max(finalIndex$index),
-                                            length(finalIndex$index)))
+                                            length(finalIndex$index)),
+                                  original = c(mean(originalIndex$index),
+                                            sd(originalIndex$index),
+                                            median(originalIndex$index),
+                                            min(originalIndex$index),
+                                            max(originalIndex$index),
+                                            length(originalIndex$index)))
+
 kable(finalIndexSummaryDF, digits = 4, row.names = FALSE)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+indexes <- data.frame(final = finalIndex$index, original = originalIndex$index)
+frame()
+ggplot(indexes) +
+  geom_histogram(aes(final, fill=index), color="green", fill="green", alpha = 0.70, binwidth = 0.025) +
+  geom_histogram(aes(original, fill=index), color="blue", fill="blue", alpha = 0.5, binwidth = 0.025) +
+  ggtitle("Corrected and original indexes histogram") +
+  labs(x = "index", y = "frequency") +
+  theme(panel.background = element_rect(fill = "gray90"))
+  
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
