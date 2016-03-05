@@ -24,6 +24,7 @@ library(sqldf)
 #library(RSQLite)
 #library(DBI)
 library(ggplot2)
+library(reshape2)
 
 readCsv <- function(fileName, colNames) {
   DF <- read.csv2(fileName, fileEncoding = "UTF-8",
@@ -583,15 +584,30 @@ kable(finalIndexSummaryDF, digits = 4, row.names = FALSE)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
-indexes <- data.frame(final = finalIndex$index, original = originalIndex$index)
+indexes <- data.frame(corrected = finalIndex$index, original = originalIndex$index)
+indexesHist <- melt(indexes, value.name = "value", variable.name = "index",
+                    measure.vars = c("corrected", "original"))
 frame()
-ggplot(indexes) +
-  geom_histogram(aes(final, fill=index), color="green", fill="green", alpha = 0.70, binwidth = 0.025) +
-  geom_histogram(aes(original, fill=index), color="blue", fill="blue", alpha = 0.5, binwidth = 0.025) +
+ggplot() +
+  theme_bw() +
+  geom_histogram(aes(x=value, y=(..count..), fill=index, color=index), alpha=0.4,
+                 data=indexesHist, stat="bin", position = "identity", binwidth = 0.025) +
   ggtitle("Corrected and original indexes histogram") +
-  labs(x = "index", y = "frequency") +
-  theme(panel.background = element_rect(fill = "gray90"))
-  
+  labs(x = "index", y = "frequency")
+
+indexesMove <- data.frame(corrected = finalIndex$index, original = finalIndex$old.I,
+                          country = finalIndex$country)
+indexesMove <- indexesMove[order(indexesMove$corrected, na.last = TRUE), , drop = FALSE]
+indexesMove$country <- factor(indexesMove$country, ordered = TRUE, levels = indexesMove$country)
+frame()
+ggplot(indexesMove) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size=unit(3, "pt")), axis.text.x = element_text()) +
+  ggtitle("Gender Gap Index changes") +
+  xlab("GGI") +
+  geom_segment(aes(y=country, yend=country, x=original, xend=corrected, color=(corrected-original)),
+               arrow = arrow(length = unit(3, "pt")),
+               data=indexesMove) 
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
