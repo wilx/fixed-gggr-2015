@@ -18,7 +18,7 @@ mainfont: Charis SIL
 ```{r, echo=FALSE, message=FALSE}
 library(knitr)
 library(sqldf)
-#library(tcltk)
+library(tcltk)
 #library(gsubfn)
 #library(proto)
 #library(RSQLite)
@@ -84,6 +84,20 @@ printSubIndexWeights <- function(dataFrame) {
   kable(dataFrame, digits = 3, row.names = FALSE)
 }
 
+
+subIndexChangeComparisonChart <- function(indexesMove, chartTitle, xAxisTitle) {
+  indexesMove <- indexesMove[order(indexesMove$corrected, na.last = TRUE), , drop = FALSE]
+  indexesMove$country <- factor(indexesMove$country, ordered = TRUE, levels = indexesMove$country)
+  frame()
+  ggplot(indexesMove) +
+    theme_bw() +
+    theme(axis.text.y = element_text(size=unit(3, "pt")), axis.text.x = element_text()) +
+    ggtitle(chartTitle) +
+    xlab(xAxisTitle) +
+    geom_segment(aes(y=country, yend=country, x=original, xend=corrected, color=(corrected-original)),
+                 arrow = arrow(length = unit(3, "pt")),
+                 data=indexesMove) 
+}
 ```
 
 # Introduction
@@ -216,6 +230,12 @@ subIndexEcon <- sqldf("SELECT country,
                       JOIN techWorkers USING (country)")
 subIndexEcon <- subIndexTweak(subIndexEcon)
 
+originalIndex <- readCsv("global-index.csv",
+                         c("country", "rank", "index",
+                           "econ.R", "econ.SI",
+                           "edu.R", "edu.SI",
+                           "he.R", "he.SI",
+                           "pol.R", "pol.SI"))
 ```
 
 ## Labour force participation
@@ -287,6 +307,19 @@ The resulting corrected country ranks and subindex values are as follows:
 
 ````{r, echo=FALSE}
 printTable(subIndexEcon)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+econSubindexChangeDF <- sqldf("SELECT country,
+                               originalIndex.[edu.SI] AS [original],
+                               subIndexEcon.subindex AS [corrected]
+                               FROM originalIndex
+                               LEFT JOIN subIndexEcon USING (country)
+                               WHERE originalIndex.[edu.SI] IS NOT NULL
+                                   AND subIndexEcon.subindex IS NOT NULL")
+frame()
+subIndexChangeComparisonChart(econSubindexChangeDF, "Labour force participation subindex changes",
+                              "subindex")
 ````
 
 
@@ -380,8 +413,20 @@ printSubIndexWeights(
 
 The resulting corrected country ranks and subindex values are as follows:
 
-````{r, echo=FALSE}
+````{r, echo=FALSE, fig.align='center'}
 printTable(subIndexEdu)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+eduSubindexChangeDF <- sqldf("SELECT country,
+                              originalIndex.[edu.SI] AS [original],
+                              subIndexEdu.subindex AS [corrected]
+                              FROM originalIndex
+                              LEFT JOIN subIndexEdu USING (country)
+                              WHERE originalIndex.[edu.SI] IS NOT NULL
+                                  AND subIndexEdu.subindex IS NOT NULL")
+frame()
+subIndexChangeComparisonChart(eduSubindexChangeDF, "Education attainment subindex changes", "subindex")
 ````
 
 
@@ -440,6 +485,16 @@ The resulting corrected country ranks and subindex values are as follows:
 
 ````{r, echo=FALSE}
 printTable(subIndexHealth)
+````
+
+````{r, echo=FALSE, fig.align='center'}
+heSubindexChangeDF <- sqldf("SELECT country,
+                             originalIndex.[he.SI] AS [original],
+                             subIndexHealth.subindex AS [corrected]
+                             FROM originalIndex
+                             LEFT OUTER JOIN subIndexHealth USING (country)")
+frame()
+subIndexChangeComparisonChart(heSubindexChangeDF, "Health and survival", "subindex")
 ````
 
 
@@ -519,16 +574,21 @@ The resulting corrected country ranks and subindex values are as follows:
 printTable(subIndexPol)
 ````
 
+````{r, echo=FALSE, fig.align='center'}
+polSubindexChangeDF <- sqldf("SELECT country,
+                              originalIndex.[pol.SI] AS [original],
+                              subIndexPol.subindex AS [corrected]
+                              FROM originalIndex
+                              LEFT OUTER JOIN subIndexPol USING (country)")
+frame()
+subIndexChangeComparisonChart(polSubindexChangeDF, "Political empowerment subindex changes", "subindex")
+````
+
 
 # Corrected Global Gender Gap Index {#corrected-gggr-2015}
 
 ````{r, echo=FALSE}
-originalIndex <- readCsv("global-index.csv",
-                         c("country", "rank", "index",
-                           "econ.R", "econ.SI",
-                           "edu.R", "edu.SI",
-                           "he.R", "he.SI",
-                           "pol.R", "pol.SI"))
+
 
 finalIndex <- sqldf("SELECT country,
                          ((COALESCE(subIndexEcon.subindex, 0)
@@ -597,17 +657,8 @@ ggplot() +
 
 indexesMove <- data.frame(corrected = finalIndex$index, original = finalIndex$old.I,
                           country = finalIndex$country)
-indexesMove <- indexesMove[order(indexesMove$corrected, na.last = TRUE), , drop = FALSE]
-indexesMove$country <- factor(indexesMove$country, ordered = TRUE, levels = indexesMove$country)
 frame()
-ggplot(indexesMove) +
-  theme_bw() +
-  theme(axis.text.y = element_text(size=unit(3, "pt")), axis.text.x = element_text()) +
-  ggtitle("Gender Gap Index changes") +
-  xlab("GGI") +
-  geom_segment(aes(y=country, yend=country, x=original, xend=corrected, color=(corrected-original)),
-               arrow = arrow(length = unit(3, "pt")),
-               data=indexesMove) 
+subIndexChangeComparisonChart(indexesMove, "Gender Gap Index changes", "GGI")
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
