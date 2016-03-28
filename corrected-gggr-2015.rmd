@@ -6,13 +6,15 @@ toc: true
 output:
   pdf_document:
     latex_engine: xelatex
-    number_sections: true
+    number_sections: yes
 language: english
 geometry:
     - a4paper
     - hmargin=1cm
     - vmargin=2cm
 mainfont: Charis SIL
+header-includes:
+    - '\input{header.tex}'
 ---
 
 ```{r, echo=FALSE, message=FALSE}
@@ -79,6 +81,11 @@ finalIndexTweak <- function(dataFrame) {
 printTable <- function(dataFrame) {
   kable(dataFrame, digits = 2, row.names = FALSE)
 }
+
+printSubindexTable <- function(dataFrame) {
+  kable(dataFrame, digits = 3, row.names = FALSE)
+}
+
 
 printSubIndexWeights <- function(dataFrame) {
   kable(dataFrame, digits = 3, row.names = FALSE)
@@ -306,7 +313,7 @@ printSubIndexWeights(
 The resulting corrected country ranks and subindex values are as follows:
 
 ````{r, echo=FALSE}
-printTable(subIndexEcon)
+printSubindexTable(subIndexEcon)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -414,7 +421,7 @@ printSubIndexWeights(
 The resulting corrected country ranks and subindex values are as follows:
 
 ````{r, echo=FALSE, fig.align='center'}
-printTable(subIndexEdu)
+printSubindexTable(subIndexEdu)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -484,7 +491,7 @@ printSubIndexWeights(
 The resulting corrected country ranks and subindex values are as follows:
 
 ````{r, echo=FALSE}
-printTable(subIndexHealth)
+printSubindexTable(subIndexHealth)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
@@ -571,7 +578,7 @@ printSubIndexWeights(
 The resulting corrected country ranks and subindex values are as follows:
 
 ````{r, echo=FALSE}
-printTable(subIndexPol)
+printSubindexTable(subIndexPol)
 ````
 
 ````{r, echo=FALSE, fig.align='center'}
